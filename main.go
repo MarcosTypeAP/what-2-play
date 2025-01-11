@@ -295,7 +295,7 @@ func loadEnvFile(file io.Reader) error {
 
 	lines := bytes.Split(data, []byte{'\n'})
 	for i, line := range lines {
-		if len(line) == 0 || line[0] == '\n' {
+		if len(line) == 0 || line[0] == '\n' || line[0] == '#' {
 			continue
 		}
 
