@@ -41,6 +41,7 @@
 
 body {
     font-family: Sans-serif;
+    height: 100vh;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -128,7 +129,7 @@ main.login {
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: start;
     align-items: center;
     background: transparent;
 
@@ -141,7 +142,6 @@ main.login {
     form {
         display: flex;
         flex-direction: column;
-        margin: auto;
         width: 400px;
 
         @media (max-width: 500px) {
@@ -444,7 +444,7 @@ main.select-friends {
             border: none;
             outline: none;
             border-radius: 5px;
-            height: 50px;
+            min-height: 50px;
             width: 250px;
             margin: 30px auto 0 auto;
             background-color: var(--color-btn-1);
