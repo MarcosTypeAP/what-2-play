@@ -1,0 +1,43 @@
+{{ template "base.tmpl" . }}
+
+{{ define "content" }}
+{{ template "header" .User }}
+<div class="background"></div>
+<main class="games">
+    {{ if .Games }}
+        <ul>
+            {{ template "games-page" . }}
+        </ul>
+    {{ else }}
+        <h1>It seems like you guys don't have any games in common...</h1>
+        <h3>Just get outside and touch some grass &lt;3</h3>
+    {{ end }}
+</main>
+{{ end }}
+
+{{ define "games" }}
+{{ template "content" . }}
+{{ end }}
+
+{{ define "games-page" }}
+{{ $devMode := .DevMode }}
+{{ range .Games }}
+    <li class="game {{ if .Free -}} free {{- end }}">
+        <a href="https://store.steampowered.com/app/{{ .AppID }}" target="_blank">
+            <img src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/{{ .AppID }}/header.jpg" />
+            <h4 class="name">{{ .Name }}</h4>
+        </a>
+    </li>
+{{ end }}
+<li
+    class="lazy-load"
+    hx-get="{{ .NextPageURL }}"
+    hx-target="this"
+    hx-swap="outerHTML"
+    {{ if .NextPageURL }}
+        hx-trigger="intersect root:main threshold:0"
+    {{ end }}
+>
+    <div class="spinner htmx-indicator"></div>
+</li>
+{{ end }}

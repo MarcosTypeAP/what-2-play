@@ -1,0 +1,56 @@
+{{ template "base.tmpl" . }}
+
+{{ define "content" }}
+{{ template "header" .User }}
+<div class="background"></div>
+<main class="select-friends">
+    {{ if .Friends }}
+        <h3 class="title">Select which friends you want to play with</h3>
+        <form
+            hx-get="/games?page=0"
+            hx-target="body"
+            hx-push-url="true"
+            hx-on:htmx:before-request="htmx.find(this, 'ul li input:checked') ?? event.preventDefault()"
+        >
+            <ul>
+                {{ $user := .User }}
+                {{ range .Friends }}
+                    <li class="{{ if .Favorite -}} favorite {{- end }}">
+                        <input type="checkbox" name="steamid" value="{{ .SteamID }}" />
+                        <div class="left-side">
+                            <img src="{{ .PictureURL }}" />
+                            <span class="username">{{ .Username }}</span>
+                        </div>
+
+                        <button
+                            class="favorite-friend-toggle"
+                            type="button"
+                            data-user-steamid="{{ $user.SteamID }}"
+                            data-friend-steamid="{{ .SteamID }}"
+                            hx-on:click="favoriteFriendToggle(this); event.stopPropagation()"
+                        >
+                            <svg class="filled-star" stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="200px" width="200px" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3.1 11.3l3.6 3.3-1 4.6c-.1.6.1 1.2.6 1.5.2.2.5.3.8.3.2 0 .4 0 .6-.1 0 0 .1 0 .1-.1l4.1-2.3 4.1 2.3s.1 0 .1.1c.5.2 1.1.2 1.5-.1.5-.3.7-.9.6-1.5l-1-4.6c.4-.3 1-.9 1.6-1.5l1.9-1.7.1-.1c.4-.4.5-1 .3-1.5s-.6-.9-1.2-1h-.1l-4.7-.5-1.9-4.3s0-.1-.1-.1c-.1-.7-.6-1-1.1-1-.5 0-1 .3-1.3.8 0 0 0 .1-.1.1l-1.9 4.3-4.7.5h-.1c-.5.1-1 .5-1.2 1-.1.6 0 1.2.4 1.6z"></path>
+                            </svg>
+                            <svg class="hollow-star" stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="200px" width="200px" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16.855 20.966c-.224 0-.443-.05-.646-.146l-.104-.051-4.107-2.343-4.107 2.344-.106.053c-.488.228-1.085.174-1.521-.143-.469-.34-.701-.933-.586-1.509l.957-4.642-1.602-1.457-1.895-1.725-.078-.082c-.375-.396-.509-.97-.34-1.492.173-.524.62-.912 1.16-1.009l.102-.018 4.701-.521 1.946-4.31.06-.11c.262-.473.764-.771 1.309-.771.543 0 1.044.298 1.309.77l.06.112 1.948 4.312 4.701.521.104.017c.539.1.986.486 1.158 1.012.17.521.035 1.098-.34 1.494l-.078.078-3.498 3.184.957 4.632c.113.587-.118 1.178-.59 1.519-.252.182-.556.281-.874.281zm-8.149-6.564c-.039.182-.466 2.246-.845 4.082l3.643-2.077c.307-.175.684-.175.99 0l3.643 2.075-.849-4.104c-.071-.346.045-.705.308-.942l3.1-2.822-4.168-.461c-.351-.039-.654-.26-.801-.584l-1.728-3.821-1.726 3.821c-.146.322-.45.543-.801.584l-4.168.461 3.1 2.822c.272.246.384.617.302.966z"></path>
+                            </svg>
+                        </button>
+                    </li>
+                {{ end }}
+            </ul>
+            <button type="submit">
+                <span>Show common games</span>
+                <div class="spinner"></div>
+            </button>
+        </form>
+    {{ else }}
+        <h3>It seems you have no friends... so this page isn't that useful</h3>
+        <h4>Get out and touch some grass &lt;3</h4>
+    {{ end }}
+</main>
+{{ end }}
+
+{{ define "index" }}
+{{ template "content" . }}
+{{ end }}

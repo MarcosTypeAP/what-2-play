@@ -1,0 +1,15 @@
+{{ define "header" }}
+<header>
+    <h4 class="title">What 2 Play?</h4>
+    <div class="user">
+        {{/* <img src="{{ .PictureURL }}" width="50px" height="50px" /> */}}
+        <span class=username>{{ .Username }}</span>
+        <button
+            hx-get="/logout"
+            hx-target="body"
+            hx-confirm="Are you sure you want to log out?"
+            hx-push-url="true"
+        >Log out</button>
+    </div>
+</header>
+{{ end }}

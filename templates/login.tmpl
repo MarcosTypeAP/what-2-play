@@ -1,0 +1,60 @@
+{{ template "base.tmpl" . }}
+
+{{ define "content" }}
+<main class="login">
+    <h1 class="title">What 2 Play?</h1>
+
+    <form hx-post="/login" hx-target="body" hx-push-url="true">
+
+        {{ with .Fields.Username }}
+            <div class="field">
+                <label for="username">Who are you?</label>
+                <input
+                    class="{{ if .Error -}} invalid {{- end }}"
+                    type="text"
+                    name="username"
+                    placeholder="Username"
+                    value="{{ .Value }}"
+                    pattern="[^ ]+"
+                    required
+                />
+                {{ if .Error }}
+                    <span class="error">{{ .Error }}</span>
+                {{ else }}
+                    <div class="info">
+                        <p>The username that appears at the end of your Steam profile's URL.</p>
+                        <p>Eg: https://steamcommunity.com/id/&lt;username&gt;</p>
+                    </div>
+                {{ end }}
+            </div>
+        {{ end }}
+
+        <button type="submit">
+            <span>Login</span>
+            <div class="spinner"></div>
+        </button>
+    </form>
+</main>
+{{ end }}
+
+{{ define "login" }}
+{{ template "content" . }}
+{{ end }}
+
+{{ define "confirm-user" }}
+<main class="confirm-user">
+    <h1 class="name">{{ .Username }}</h1>
+    <div class="img-border">
+        <img src="{{ .PictureURL }}" />
+    </div>
+
+    <h3 class="question">Is it you?</h3>
+    <div class="buttons" hx-push-url="true" hx-target="body">
+        <button hx-get="/login">No</button>
+        <button hx-post="/login/confirm?steamid={{ .SteamID }}">
+            <span>Yes</span>
+            <div class="spinner"></div>
+        </button>
+    </div>
+</main>
+{{ end }}
