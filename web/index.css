@@ -380,6 +380,7 @@ main.select-friends {
             font-size: 12px;
             color: var(--color-favorite-1);
             text-align: right;
+            margin-bottom: 5px;
         }
 
         ul {
