@@ -12,6 +12,7 @@
             hx-push-url="true"
             hx-on:htmx:before-request="htmx.find(this, 'ul li input:checked') ?? event.preventDefault()"
         >
+            <p class="favorite-legend">Favorite</p>
             <ul>
                 {{ $user := .User }}
                 {{ range .Friends }}

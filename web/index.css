@@ -12,7 +12,6 @@
     --color-bg-1: #171d25;
     --color-bg-2: #1b2838;
     --color-bg-3: #1d5270;
-    /* --color-bg-3: #193b4e; */
     --color-bg-4: #2d3d4b;
 
     --color-fg-1: #c5c3c0;
@@ -366,6 +365,12 @@ main.select-friends {
             user-select: none;
         }
 
+        .favorite-legend {
+            font-size: 12px;
+            color: var(--color-favorite-1);
+            text-align: right;
+        }
+
         ul {
             display: flex;
             flex-direction: column;
@@ -413,9 +418,11 @@ main.select-friends {
                     background: transparent;
                     border: none;
                     outline: none;
+                    display: flex;
                     z-index: 1;
 
                     svg {
+                        margin: auto;
                         width: 25px;
                         height: 25px;
                     }
