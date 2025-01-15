@@ -164,13 +164,13 @@ func handleGames(steamAPIKey string, db *sql.DB, cache *CacheGroup) http.Handler
 			return
 		}
 
-		_userInfo, err := fetchSteamUsersInfo(steamAPIKey, []string{steamID}, cache)
-		if err != nil {
+		_usersInfo, err := fetchSteamUsersInfo(steamAPIKey, []string{steamID}, cache)
+		if err != nil || len(_usersInfo) == 0 {
 			slog.Error("fetch user info", "steamid", steamID, "err", err)
 			blameValve(w)
 			return
 		}
-		userInfo := _userInfo[0]
+		userInfo := _usersInfo[0]
 
 		users := append(friends, steamID)
 
@@ -261,7 +261,7 @@ func handleLogin(steamAPIKey string, cache *CacheGroup) http.Handler {
 			Picture string
 		}
 		Fields struct {
-			Username struct {
+			Identifier struct {
 				Value string
 				Error string
 			}
@@ -271,17 +271,26 @@ func handleLogin(steamAPIKey string, cache *CacheGroup) http.Handler {
 	validateData := func(fields url.Values) (data Data, valid bool) {
 		f := &data.Fields
 
-		username := strings.TrimSpace(fields.Get("username"))
-		if len(username) == 0 {
-			f.Username.Error = "Field required"
-		} else if strings.Contains(username, " ") {
-			f.Username.Error = "Field must not have spaces"
+		identifier := strings.TrimSpace(fields.Get("identifier"))
+		if len(identifier) == 0 {
+			f.Identifier.Error = "Field required"
+		} else if strings.Contains(identifier, " ") {
+			f.Identifier.Error = "Field must not have spaces"
 		}
-		f.Username.Value = username
+		f.Identifier.Value = identifier
 
-		valid = len(f.Username.Error) == 0
+		valid = len(f.Identifier.Error) == 0
 
 		return data, valid
+	}
+
+	looksLikeSteamID := func(identifier string) bool {
+		for _, ch := range identifier {
+			if ch < '0' || ch > '9' {
+				return false
+			}
+		}
+		return true
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -318,31 +327,72 @@ func handleLogin(steamAPIKey string, cache *CacheGroup) http.Handler {
 			return
 		}
 
-		steamID, err := fetchSteamID(steamAPIKey, data.Fields.Username.Value)
-		if err != nil {
-			slog.Error("fetch steamid", "username", data.Fields.Username.Value, "err", err)
-			blameValve(w)
-			return
-		}
-		if steamID == "" {
-			data.Fields.Username.Error = "Not found"
+		var userInfo SteamUserInfo
 
-			err = renderTemplate(w, templs.Lookup("login"), http.StatusOK, data)
+		if looksLikeSteamID(data.Fields.Identifier.Value) {
+			steamID := data.Fields.Identifier.Value
+
+			usersInfo, err := fetchSteamUsersInfo(steamAPIKey, []string{steamID}, cache)
 			if err != nil {
-				slog.Error("send login template (username not found)", "err", err)
-				blameMyself(w)
+				slog.Error("fetch user info", "steamid", steamID, "err", err)
+				blameValve(w)
 				return
 			}
-			return
-		}
+			if len(usersInfo) == 0 {
+				// maybe it was not
+				steamID, err = fetchSteamID(steamAPIKey, data.Fields.Identifier.Value)
+				if err != nil {
+					slog.Error("fetch steamid", "identifier", data.Fields.Identifier.Value, "err", err)
+					blameValve(w)
+					return
+				}
+				if len(steamID) == 0 {
+					data.Fields.Identifier.Error = "Not found"
 
-		_userInfo, err := fetchSteamUsersInfo(steamAPIKey, []string{steamID}, cache)
-		if err != nil {
-			slog.Error("fetch user info", "steamid", steamID, "err", err)
-			blameValve(w)
-			return
+					err = renderTemplate(w, templs.Lookup("login"), http.StatusOK, data)
+					if err != nil {
+						slog.Error("send login template (username not found)", "err", err)
+						blameMyself(w)
+						return
+					}
+					return
+				}
+
+				usersInfo, err = fetchSteamUsersInfo(steamAPIKey, []string{steamID}, cache)
+				if err != nil || len(usersInfo) == 0 {
+					slog.Error("fetch user info", "steamid", steamID, "err", err)
+					blameValve(w)
+					return
+				}
+			}
+			userInfo = usersInfo[0]
+		} else {
+			steamID, err := fetchSteamID(steamAPIKey, data.Fields.Identifier.Value)
+			if err != nil {
+				slog.Error("fetch steamid", "identifier", data.Fields.Identifier.Value, "err", err)
+				blameValve(w)
+				return
+			}
+			if len(steamID) == 0 {
+				data.Fields.Identifier.Error = "Not found"
+
+				err = renderTemplate(w, templs.Lookup("login"), http.StatusOK, data)
+				if err != nil {
+					slog.Error("send login template (username not found)", "err", err)
+					blameMyself(w)
+					return
+				}
+				return
+			}
+
+			usersInfo, err := fetchSteamUsersInfo(steamAPIKey, []string{steamID}, cache)
+			if err != nil || len(usersInfo) == 0 {
+				slog.Error("fetch user info", "steamid", steamID, "err", err)
+				blameValve(w)
+				return
+			}
+			userInfo = usersInfo[0]
 		}
-		userInfo := _userInfo[0]
 
 		renderTemplate(w, templs.Lookup("confirm-user"), http.StatusOK, userInfo)
 	})

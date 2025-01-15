@@ -6,14 +6,14 @@
 
     <form hx-post="/login" hx-target="body" hx-push-url="true">
 
-        {{ with .Fields.Username }}
+        {{ with .Fields.Identifier }}
             <div class="field">
-                <label for="username">Who are you?</label>
+                <label for="identifier">Who are you?</label>
                 <input
                     class="{{ if .Error -}} invalid {{- end }}"
                     type="text"
-                    name="username"
-                    placeholder="Username"
+                    name="identifier"
+                    placeholder="Identifier"
                     value="{{ .Value }}"
                     pattern="[^ ]+"
                     spellcheck="false"
@@ -21,12 +21,15 @@
                 />
                 {{ if .Error }}
                     <span class="error">{{ .Error }}</span>
-                {{ else }}
-                    <div class="info">
-                        <p>The username that appears at the end of your Steam profile's URL.</p>
-                        <p>Eg: https://steamcommunity.com/id/&lt;username&gt;</p>
-                    </div>
                 {{ end }}
+                <div class="info">
+                    <p>
+                        The Steam ID that you can find in your
+                        <a href="https://store.steampowered.com/account" target="_blank">Steam Account</a> details, at the top,
+                        or it can be your custom username that appears at the end of your Steam profile's URL.
+                    </p>
+                    <p>Eg: https://steamcommunity.com/id/&lt;username&gt;</p>
+                </div>
             </div>
         {{ end }}
 
