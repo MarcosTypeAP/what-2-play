@@ -1,5 +1,7 @@
 # What 2 Play?
 
+> ⚠️ Due to free tier, on the first request, the page may take up to 1 minute to load as the server spins up.
+
 This page shows you what multiplayer games you and your friends share in common on Steam, so you can decide what to play. That's it.
 
 (Steam APIs are a f-ing mess)
