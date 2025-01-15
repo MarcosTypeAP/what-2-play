@@ -5,6 +5,20 @@
 <div class="background"></div>
 <main class="games">
     {{ if .Games }}
+        <div class="filters">
+            <div class="free">
+                <span>Show Free</span>
+                <label class="toggle">
+                    <input type="checkbox" checked />  
+                </label>
+            </div>
+            <div class="paid">
+                <span>Show Paid</span>
+                <label class="toggle">
+                    <input type="checkbox" checked />  
+                </label>
+            </div>
+        </div>
         <ul>
             {{ template "games-page" . }}
         </ul>
